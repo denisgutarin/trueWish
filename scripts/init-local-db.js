@@ -1,0 +1,66 @@
+#!/usr/bin/env node
+
+/**
+ * Инициализация локальной базы данных Postgres
+ * 
+ * Использование:
+ * 1. Убедитесь что Postgres установлен и запущен локально
+ * 2. Создайте пользователя и базу вручную:
+ *    psql -U postgres
+ *    CREATE DATABASE truewish;
+ *    CREATE USER truewish WITH PASSWORD 'truewish123';
+ *    GRANT ALL PRIVILEGES ON DATABASE truewish TO truewish;
+ * 3. Установите DATABASE_URL в .env:
+ *    DATABASE_URL=postgresql://truewish:truewish123@localhost:5432/truewish
+ * 4. Запустите этот скрипт: node scripts/init-local-db.js
+ * 
+ * Скрипт создаст все необходимые таблицы.
+ */
+
+require('dotenv').config();
+
+async function initDatabase() {
+  console.log('🔄 Инициализация локальной базы данных...\n');
+
+  // Проверка DATABASE_URL
+  if (!process.env.DATABASE_URL) {
+    console.error('❌ DATABASE_URL не установлена в .env файле');
+    console.log('\n💡 Добавьте в .env:');
+    console.log('   DATABASE_URL=postgresql://truewish:truewish123@localhost:5432/truewish\n');
+    process.exit(1);
+  }
+
+  console.log('✅ DATABASE_URL найдена');
+  console.log('🔗 Подключение:', process.env.DATABASE_URL.replace(/:[^:@]+@/, ':****@'));
+
+  try {
+    // Импортируем db и инициализируем
+    const db = require('../lib/bot/database/db');
+    
+    console.log('\n🔄 Создание таблиц...');
+    await db.init();
+    
+    console.log('\n✅ База данных успешно инициализирована!');
+    console.log('\n📋 Созданные таблицы:');
+    console.log('   - users');
+    console.log('   - topics');
+    console.log('   - materials');
+    console.log('   - user_topic_access');
+    console.log('   - user_progress');
+    console.log('   - user_answers');
+    
+    console.log('\n🚀 Готово! Теперь можно запустить: npm run dev');
+    
+  } catch (error) {
+    console.error('\n❌ Ошибка инициализации:', error.message);
+    console.error('Стек ошибки:', error.stack);
+    console.log('\n💡 Убедитесь что:');
+    console.log('   1. Postgres запущен локально');
+    console.log('   2. База данных truewish создана');
+    console.log('   3. Пользователь truewish имеет права доступа');
+    console.log('   4. DATABASE_URL правильно указан в .env');
+    process.exit(1);
+  }
+}
+
+initDatabase();
