@@ -1,0 +1,18 @@
+{
+  "administrators": [
+    {
+      "name": "Администратор 1",
+      "username": "@admin1",
+      "telegram_id": 123456789
+    },
+    {
+      "name": "Администратор 2",
+      "username": "@admin2",
+      "telegram_id": 987654321
+    }
+  ],
+  "bot": {
+    "name": "TrueWish Course Bot",
+    "welcome_message": "Добро пожаловать в систему обучения! Выберите тему из меню ниже."
+  }
+}

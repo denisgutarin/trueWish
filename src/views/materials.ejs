@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Материалы - <%= topic.title %></title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    .header {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .nav {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      background: #667eea;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background 0.3s;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      background: #5568d3;
+    }
+
+    .btn-success {
+      background: #28a745;
+    }
+
+    .btn-success:hover {
+      background: #218838;
+    }
+
+    .materials-list {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+
+    .material-card {
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 15px;
+    }
+
+    .material-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .material-type {
+      padding: 5px 10px;
+      background: #667eea;
+      color: white;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .material-content {
+      margin-bottom: 10px;
+      color: #555;
+    }
+
+    .material-task {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      margin: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 5px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .help-text {
+      font-size: 12px;
+      color: #999;
+      margin-top: 5px;
+    }
+
+    .no-materials {
+      padding: 40px;
+      text-align: center;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📁 <%= topic.title %> - Материалы</h1>
+    <div class="nav">
+      <button class="btn btn-success" onclick="openModal()">+ Добавить материал</button>
+      <a href="/topics" class="btn">← Назад к темам</a>
+    </div>
+  </div>
+
+  <div class="materials-list">
+    <% if (materials.length === 0) { %>
+      <div class="no-materials">
+        Материалов пока нет. Создайте первый материал, нажав кнопку "Добавить материал".
+      </div>
+    <% } else { %>
+      <% materials.forEach(material => { %>
+        <div class="material-card">
+          <div class="material-header">
+            <span class="material-type"><%= material.type.toUpperCase() %></span>
+            <button class="btn" onclick='editMaterial(<%= JSON.stringify(material) %>)'>✏️ Редактировать</button>
+          </div>
+          
+          <% if (material.content) { %>
+            <div class="material-content">
+              <strong>Контент:</strong><br>
+              <%= material.content %>
+            </div>
+          <% } %>
+
+          <% if (material.file_id) { %>
+            <div class="material-content">
+              <strong>File ID:</strong> <code><%= material.file_id %></code>
+            </div>
+          <% } %>
+
+          <% if (material.task_text) { %>
+            <div class="material-task">
+              <strong>📝 Практическое задание:</strong><br>
+              <%= material.task_text %>
+            </div>
+          <% } %>
+
+          <div style="margin-top: 10px; color: #999; font-size: 12px;">
+            Порядок: <%= material.order_index %>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+
+  <div class="modal" id="materialModal">
+    <div class="modal-content">
+      <h2 id="modalTitle">Добавить материал</h2>
+      <form id="materialForm" onsubmit="saveMaterial(event)">
+        <input type="hidden" id="materialId" name="id">
+        <input type="hidden" name="topicId" value="<%= topic.id %>">
+        
+        <div class="form-group">
+          <label for="type">Тип материала *</label>
+          <select id="type" name="type" required>
+            <option value="text">Текст</option>
+            <option value="video">Видео</option>
+            <option value="audio">Аудио</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="content">Текстовый контент</label>
+          <textarea id="content" name="content"></textarea>
+          <div class="help-text">Описание или текстовое содержание материала</div>
+        </div>
+
+        <div class="form-group">
+          <label for="fileId">File ID (для видео/аудио)</label>
+          <input type="text" id="fileId" name="fileId">
+          <div class="help-text">Telegram file_id - можно получить, отправив файл боту и скопировав его ID из логов</div>
+        </div>
+
+        <div class="form-group">
+          <label for="taskText">Текст практического задания</label>
+          <textarea id="taskText" name="taskText"></textarea>
+          <div class="help-text">Задание, на которое пользователь должен будет ответить</div>
+        </div>
+
+        <div class="form-group">
+          <label for="orderIndex">Порядок отображения</label>
+          <input type="number" id="orderIndex" name="orderIndex" value="0" min="0">
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+          <button type="submit" class="btn btn-success">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openModal() {
+      document.getElementById('modalTitle').textContent = 'Добавить материал';
+      document.getElementById('materialForm').reset();
+      document.getElementById('materialId').value = '';
+      document.querySelector('input[name="topicId"]').value = '<%= topic.id %>';
+      document.getElementById('materialModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('materialModal').classList.remove('active');
+    }
+
+    function editMaterial(material) {
+      document.getElementById('modalTitle').textContent = 'Редактировать материал';
+      document.getElementById('materialId').value = material.id;
+      document.getElementById('type').value = material.type;
+      document.getElementById('content').value = material.content || '';
+      document.getElementById('fileId').value = material.file_id || '';
+      document.getElementById('taskText').value = material.task_text || '';
+      document.getElementById('orderIndex').value = material.order_index;
+      document.getElementById('materialModal').classList.add('active');
+    }
+
+    async function saveMaterial(event) {
+      event.preventDefault();
+      
+      const formData = new FormData(event.target);
+      const data = {
+        id: formData.get('id') || null,
+        topicId: parseInt(formData.get('topicId')),
+        type: formData.get('type'),
+        content: formData.get('content'),
+        fileId: formData.get('fileId'),
+        taskText: formData.get('taskText'),
+        orderIndex: parseInt(formData.get('orderIndex'))
+      };
+
+      try {
+        const response = await fetch('/api/material', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          location.reload();
+        } else {
+          alert('Ошибка при сохранении материала');
+        }
+      } catch (error) {
+        alert('Ошибка при сохранении материала');
+      }
+    }
+
+    document.getElementById('materialModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>
