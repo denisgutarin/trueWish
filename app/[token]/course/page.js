@@ -69,18 +69,15 @@ export default function CoursePage({ params }) {
   }
 
   async function selectTopic(topic) {
-    if (!topic.hasAccess) {
-      alert('🔒 У вас нет доступа к этой теме');
-      return;
-    }
-
     setSelectedTopic(topic);
     setAnswerText('');
-    
+    if (!topic.hasAccess) {
+      setMaterials([]);
+      return;
+    }
     try {
       const response = await fetch(`/api/topics/${topic.id}/materials?userId=${userId}`);
       const data = await response.json();
-      
       if (response.ok) {
         setMaterials(data.materials || []);
       } else {
@@ -188,115 +185,122 @@ export default function CoursePage({ params }) {
               <p className="text-gray-600 mb-8">{selectedTopic.description}</p>
             )}
 
-            <div className="space-y-6">
-              {materials.map((material, index) => (
-                <div
-                  key={material.id}
-                  className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="text-xl font-semibold text-gray-800">
-                      {material.type === 'video' && '📹 '}
-                      {material.type === 'audio' && '🎵 '}
-                      {material.type === 'text' && '📄 '}
-                      {material.type === 'task' && '📝 '}
-                      Материал {index + 1}
-                      {material.completed && (
-                        <span className="ml-2 text-green-500">✅</span>
-                      )}
-                    </h3>
-                  </div>
+            {!selectedTopic.hasAccess ? (
+              <div className="bg-yellow-50 border-l-4 border-yellow-500 p-6 mt-6 rounded-lg">
+                <p className="text-lg text-yellow-800 font-semibold mb-2">У вас нет доступа к этой теме</p>
+                <p className="text-yellow-700">Обратитесь к администратору для получения доступа.</p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {materials.map((material, index) => (
+                  <div
+                    key={material.id}
+                    className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <h3 className="text-xl font-semibold text-gray-800">
+                        {material.type === 'video' && '📹 '}
+                        {material.type === 'audio' && '🎵 '}
+                        {material.type === 'text' && '📄 '}
+                        {material.type === 'task' && '📝 '}
+                        Материал {index + 1}
+                        {material.completed && (
+                          <span className="ml-2 text-green-500">✅</span>
+                        )}
+                      </h3>
+                    </div>
 
-                  {material.type === 'video' && material.file_id && (
-                    material.file_id.startsWith('http') ? (
-                      (() => {
-                        const embedUrl = getVideoEmbedUrl(material.file_id);
-                        return embedUrl ? (
-                          <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                            <iframe
-                              src={embedUrl}
-                              className="absolute top-0 left-0 w-full h-full rounded-lg mb-4"
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
+                    {material.type === 'video' && material.file_id && (
+                      material.file_id.startsWith('http') ? (
+                        (() => {
+                          const embedUrl = getVideoEmbedUrl(material.file_id);
+                          return embedUrl ? (
+                            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                              <iframe
+                                src={embedUrl}
+                                className="absolute top-0 left-0 w-full h-full rounded-lg mb-4"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              />
+                            </div>
+                          ) : (
+                            <video
+                              src={material.file_id}
+                              controls
+                              className="w-full rounded-lg mb-4"
                             />
-                          </div>
-                        ) : (
-                          <video
-                            src={material.file_id}
-                            controls
-                            className="w-full rounded-lg mb-4"
-                          />
-                        );
-                      })()
-                    ) : (
-                      <div className="bg-gray-100 p-4 rounded-lg mb-4">
-                        <p className="text-gray-600">
-                          📹 Видео (Telegram file ID: {material.file_id})
+                          );
+                        })()
+                      ) : (
+                        <div className="bg-gray-100 p-4 rounded-lg mb-4">
+                          <p className="text-gray-600">
+                            📹 Видео (Telegram file ID: {material.file_id})
+                          </p>
+                        </div>
+                      )
+                    )}
+
+                    {material.type === 'audio' && material.file_id && (
+                      material.file_id.startsWith('http') ? (
+                        <audio
+                          src={material.file_id}
+                          controls
+                          className="w-full mb-4"
+                        />
+                      ) : (
+                        <div className="bg-gray-100 p-4 rounded-lg mb-4">
+                          <p className="text-gray-600">
+                            🎵 Аудио (Telegram file ID: {material.file_id})
+                          </p>
+                        </div>
+                      )
+                    )}
+
+                    {material.type === 'text' && material.content && (
+                      <div className="prose max-w-none mb-4">
+                        <p className="text-gray-700 whitespace-pre-wrap">
+                          {material.content}
                         </p>
                       </div>
-                    )
-                  )}
+                    )}
 
-                  {material.type === 'audio' && material.file_id && (
-                    material.file_id.startsWith('http') ? (
-                      <audio
-                        src={material.file_id}
-                        controls
-                        className="w-full mb-4"
-                      />
-                    ) : (
-                      <div className="bg-gray-100 p-4 rounded-lg mb-4">
-                        <p className="text-gray-600">
-                          🎵 Аудио (Telegram file ID: {material.file_id})
+                    {/* Показываем задание для любого типа материала, если оно есть */}
+                    {material.task_text && (
+                      <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
+                        <p className="font-semibold text-blue-900 mb-2">
+                          📝 Задание:
+                        </p>
+                        <p className="text-blue-800 whitespace-pre-wrap">
+                          {material.task_text}
                         </p>
                       </div>
-                    )
-                  )}
+                    )}
 
-                  {material.type === 'text' && material.content && (
-                    <div className="prose max-w-none mb-4">
-                      <p className="text-gray-700 whitespace-pre-wrap">
-                        {material.content}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Показываем задание для любого типа материала, если оно есть */}
-                  {material.task_text && (
-                    <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
-                      <p className="font-semibold text-blue-900 mb-2">
-                        📝 Задание:
-                      </p>
-                      <p className="text-blue-800 whitespace-pre-wrap">
-                        {material.task_text}
-                      </p>
-                    </div>
-                  )}
-
-                  {material.task_text && !material.completed && (
-                    <div className="mt-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Ваш ответ:
-                      </label>
-                      <textarea
-                        value={answerText}
-                        onChange={(e) => setAnswerText(e.target.value)}
-                        rows="4"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900"
-                        placeholder="Введите ваш ответ..."
-                      />
-                      <button
-                        onClick={() => submitAnswer(material.id)}
-                        disabled={submitting || !answerText.trim()}
-                        className="mt-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white font-semibold py-2 px-6 rounded-lg transition"
-                      >
-                        {submitting ? 'Отправка...' : 'Отправить ответ'}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+                    {material.task_text && !material.completed && (
+                      <div className="mt-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Ваш ответ:
+                        </label>
+                        <textarea
+                          value={answerText}
+                          onChange={(e) => setAnswerText(e.target.value)}
+                          rows="4"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900"
+                          placeholder="Введите ваш ответ..."
+                        />
+                        <button
+                          onClick={() => submitAnswer(material.id)}
+                          disabled={submitting || !answerText.trim()}
+                          className="mt-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white font-semibold py-2 px-6 rounded-lg transition"
+                        >
+                          {submitting ? 'Отправка...' : 'Отправить ответ'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           <div className="flex items-center justify-center h-full">

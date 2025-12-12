@@ -93,32 +93,39 @@ export default function UserModal({ user, onClose, onUpdate }) {
             </div>
           ) : (
             <div className="space-y-3">
-              {topics.map((topic) => {
-                const access = hasAccess(topic.id);
-                return (
-                  <div
-                    key={topic.id}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
-                  >
-                    <div>
-                      <h3 className="font-semibold text-gray-800">{topic.title}</h3>
-                      {topic.description && (
-                        <p className="text-sm text-gray-600">{topic.description}</p>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => toggleAccess(topic.id, access)}
-                      className={`px-4 py-2 rounded-lg font-medium transition ${
-                        access
-                          ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
+              {topics.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">Нет тем для управления доступом</div>
+              ) : (
+                topics.map((topic) => {
+                  const access = hasAccess(topic.id);
+                  return (
+                    <div
+                      key={topic.id}
+                      className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
                     >
-                      {access ? '✓ Доступ открыт' : '🔒 Доступ закрыт'}
-                    </button>
-                  </div>
-                );
-              })}
+                      <div>
+                        <h3 className="font-semibold text-gray-800">{topic.title}</h3>
+                        {topic.description && (
+                          <p className="text-sm text-gray-600">{topic.description}</p>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => toggleAccess(topic.id, access)}
+                        className={`px-4 py-2 rounded-lg font-medium transition ${
+                          access
+                            ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {access ? '✓ Доступ открыт' : '🔒 Доступ закрыт'}
+                      </button>
+                    </div>
+                  );
+                })
+              )}
+              {topics.length > 0 && userAccess.length === 0 && (
+                <div className="text-center text-gray-400 py-4">У пользователя нет доступов ни к одной теме</div>
+              )}
             </div>
           )}
         </div>
