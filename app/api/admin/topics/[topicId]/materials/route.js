@@ -1,4 +1,4 @@
-import { getDb } from '@/lib/db';
+import db from '@/lib/bot/database/db';
 
 /**
  * GET /api/admin/topics/[topicId]/materials - Получить материалы темы
@@ -7,14 +7,12 @@ export async function GET(request, { params }) {
   try {
     const { topicId } = await params;
     const topicIdNum = parseInt(topicId);
-    const db = getDb();
-
-    const materials = await db.prepare(`
+    const materials = await db.all(`
       SELECT *
       FROM materials
-      WHERE topic_id = ?
+      WHERE topic_id = $1
       ORDER BY order_index
-    `).all(topicIdNum);
+    `, [topicIdNum])
 
     return Response.json({ materials });
   } catch (error) {

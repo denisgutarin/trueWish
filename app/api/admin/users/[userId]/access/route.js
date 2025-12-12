@@ -1,4 +1,4 @@
-import { getDb } from '@/lib/db';
+import db from '@/lib/bot/database/db';
 
 /**
  * GET /api/admin/users/[userId]/access - Получить доступы пользователя
@@ -7,15 +7,13 @@ export async function GET(request, { params }) {
   try {
     const { userId } = await params;
     const userIdNum = parseInt(userId);
-    const db = getDb();
-
-    const access = await db.prepare(`
+    const access = await db.all(`
       SELECT uta.*, t.title as topic_title
       FROM user_topic_access uta
       JOIN topics t ON uta.topic_id = t.id
-      WHERE uta.user_id = ?
+      WHERE uta.user_id = $1
       ORDER BY t.order_index
-    `).all(userIdNum);
+    `, [userIdNum])
 
     return Response.json({ access });
   } catch (error) {
@@ -32,13 +30,11 @@ export async function POST(request, { params }) {
     const { userId } = await params;
     const userIdNum = parseInt(userId);
     const { topicId } = await request.json();
-    const db = getDb();
-
-    await db.prepare(`
+    await db.run(`
       INSERT INTO user_topic_access (user_id, topic_id)
-      VALUES (?, ?)
+      VALUES ($1, $2)
       ON CONFLICT DO NOTHING
-    `).run(userIdNum, topicId);
+    `, [userIdNum, topicId])
 
     return Response.json({ success: true });
   } catch (error) {
@@ -55,12 +51,10 @@ export async function DELETE(request, { params }) {
     const { userId } = await params;
     const userIdNum = parseInt(userId);
     const { topicId } = await request.json();
-    const db = getDb();
-
-    await db.prepare(`
+    await db.run(`
       DELETE FROM user_topic_access
-      WHERE user_id = ? AND topic_id = ?
-    `).run(userIdNum, topicId);
+      WHERE user_id = $1 AND topic_id = $2
+    `, [userIdNum, topicId])
 
     return Response.json({ success: true });
   } catch (error) {

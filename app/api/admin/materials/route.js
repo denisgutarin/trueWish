@@ -1,4 +1,4 @@
-import { getDb } from '@/lib/db';
+import db from '@/lib/bot/database/db';
 
 /**
  * POST /api/admin/materials - Создать новый материал
@@ -6,18 +6,14 @@ import { getDb } from '@/lib/db';
 export async function POST(request) {
   try {
     const { topicId, type, content, fileId, taskText } = await request.json();
-    const db = getDb();
-
     // Получаем максимальный order_index для этой темы
-    const maxOrder = await db.prepare(
-      'SELECT MAX(order_index) as max FROM materials WHERE topic_id = ?'
-    ).get(topicId);
+    const maxOrder = await db.get(`SELECT MAX(order_index) as max FROM materials WHERE topic_id = $1`, [topicId])
     const orderIndex = (maxOrder?.max || 0) + 1;
 
-    const result = await db.prepare(`
+    const result = await db.run(`
       INSERT INTO materials (topic_id, type, file_id, content, task_text, order_index)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `).run(topicId, type, fileId, content, taskText, orderIndex);
+      VALUES ($1, $2, $3, $4, $5, $6)
+    `, [topicId, type, fileId, content, taskText, orderIndex])
 
     return Response.json({ success: true, id: result.lastInsertRowid });
   } catch (error) {

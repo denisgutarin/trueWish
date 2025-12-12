@@ -1,12 +1,10 @@
-import { getDb } from '@/lib/db';
+import db from '@/lib/bot/database/db';
 
 /**
  * GET /api/admin/topics - Список всех тем с количеством материалов
  */
 export async function GET() {
-  try {
-    const db = getDb();
-    const topics = await db.prepare(`
+  try {    const topics = await db.all(`
       SELECT 
         t.*,
         COUNT(m.id) as materials_count
@@ -14,7 +12,7 @@ export async function GET() {
       LEFT JOIN materials m ON t.id = m.topic_id
       GROUP BY t.id
       ORDER BY t.order_index
-    `).all();
+    `, [])
 
     return Response.json({ topics });
   } catch (error) {
@@ -29,16 +27,14 @@ export async function GET() {
 export async function POST(request) {
   try {
     const { title, description } = await request.json();
-    const db = getDb();
-
     // Получаем максимальный order_index
-    const maxOrder = await db.prepare('SELECT MAX(order_index) as max FROM topics').get();
+    const maxOrder = await db.get(`SELECT MAX(order_index) as max FROM topics`, [])
     const orderIndex = (maxOrder?.max || 0) + 1;
 
-    const result = await db.prepare(`
+    const result = await db.run(`
       INSERT INTO topics (title, description, order_index)
-      VALUES (?, ?, ?)
-    `).run(title, description || null, orderIndex);
+      VALUES ($1, $2, $3)
+    `, [title, description || null, orderIndex])
 
     return Response.json({ success: true, id: result.lastInsertRowid });
   } catch (error) {

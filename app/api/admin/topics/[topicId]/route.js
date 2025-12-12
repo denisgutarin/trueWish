@@ -1,4 +1,4 @@
-import { getDb } from '@/lib/db';
+import db from '@/lib/bot/database/db';
 
 /**
  * PUT /api/admin/topics/[topicId] - Обновить тему
@@ -8,13 +8,11 @@ export async function PUT(request, { params }) {
     const { topicId } = await params;
     const topicIdNum = parseInt(topicId);
     const { title, description } = await request.json();
-    const db = getDb();
-
-    await db.prepare(`
+    await db.run(`
       UPDATE topics
-      SET title = ?, description = ?
-      WHERE id = ?
-    `).run(title, description || null, topicIdNum);
+      SET title = $1, description = $2
+      WHERE id = $3
+    `, [title, description || null, topicIdNum])
 
     return Response.json({ success: true });
   } catch (error) {
@@ -30,10 +28,8 @@ export async function DELETE(request, { params }) {
   try {
     const { topicId } = await params;
     const topicIdNum = parseInt(topicId);
-    const db = getDb();
-
     // Удаляем тему (материалы удалятся каскадно через foreign key)
-    await db.prepare('DELETE FROM topics WHERE id = ?').run(topicIdNum);
+    await db.run(`DELETE FROM topics WHERE id = $1`, [topicIdNum])
 
     return Response.json({ success: true });
   } catch (error) {
@@ -49,14 +45,12 @@ export async function GET(request, { params }) {
   try {
     const { topicId } = await params;
     const topicIdNum = parseInt(topicId);
-    const db = getDb();
-
-    const materials = await db.prepare(`
+    const materials = await db.all(`
       SELECT *
       FROM materials
-      WHERE topic_id = ?
+      WHERE topic_id = $1
       ORDER BY order_index
-    `).all(topicIdNum);
+    `, [topicIdNum])
 
     return Response.json({ materials });
   } catch (error) {

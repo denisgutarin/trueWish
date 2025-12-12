@@ -1,4 +1,4 @@
-import { getDb } from '@/lib/db';
+import db from '@/lib/bot/database/db';
 
 /**
  * DELETE /api/admin/users/[userId]
@@ -7,10 +7,8 @@ export async function DELETE(request, { params }) {
   try {
     const { userId } = await params;
     const userIdNum = parseInt(userId);
-    const db = getDb();
-
     // Удаляем пользователя и все связанные данные (каскадное удаление через foreign keys)
-    await db.prepare('DELETE FROM users WHERE id = ?').run(userIdNum);
+    await db.run(`DELETE FROM users WHERE id = $1`, [userIdNum])
 
     return Response.json({ success: true });
   } catch (error) {
@@ -26,15 +24,13 @@ export async function GET(request, { params }) {
   try {
     const { userId } = await params;
     const userIdNum = parseInt(userId);
-    const db = getDb();
-
-    const access = await db.prepare(`
+    const access = await db.all(`
       SELECT uta.*, t.title as topic_title
       FROM user_topic_access uta
       JOIN topics t ON uta.topic_id = t.id
-      WHERE uta.user_id = ?
+      WHERE uta.user_id = $1
       ORDER BY t.order_index
-    `).all(userIdNum);
+    `, [userIdNum])
 
     return Response.json({ access });
   } catch (error) {
