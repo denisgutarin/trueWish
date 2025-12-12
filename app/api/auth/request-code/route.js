@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { UserModel } from '@/lib/models';
+import { createBot } from '@/lib/bot';
 
 /**
  * POST /api/auth/request-code
@@ -19,12 +20,8 @@ export async function POST(request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Получаем экземпляр бота из глобальной переменной
-    const bot = global.telegramBot;
-    if (!bot) {
-      console.error('❌ Telegram bot instance not found');
-      return NextResponse.json({ error: 'Bot not initialized' }, { status: 500 });
-    }
+    
+    const bot = createBot()   
 
     console.log('🔐 Requesting code for user:', user.telegram_id);
     const code = await bot.sendVerificationCodeToUser(user.telegram_id);

@@ -8,9 +8,12 @@ export async function POST(request) {
     const update = await request.json();
     const bot = createBot();
     // Fire-and-forget, but log errors if any
-    await bot.handleUpdate(update).catch((err) => {
+    try {
+      await bot.handleUpdate(update)
+    } catch (error) {
       console.error('❌ handleUpdate error:', err);
-    });
+    }
+    
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('Webhook error:', error);

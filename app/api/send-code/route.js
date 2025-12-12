@@ -1,3 +1,4 @@
+import { createBot } from '@/lib/bot';
 import { UserModel } from '@/lib/models';
 
 export async function POST(request) {
@@ -15,11 +16,7 @@ export async function POST(request) {
     }
 
     // Получаем экземпляр бота из глобальной переменной
-    const bot = global.telegramBot;
-    if (!bot) {
-      console.error('❌ Telegram bot instance not found');
-      return Response.json({ error: 'Bot not initialized' }, { status: 500 });
-    }
+    const bot = createBot()
 
     console.log('🔐 Requesting code for user:', user.telegram_id);
     const code = await bot.sendVerificationCodeToUser(user.telegram_id);
