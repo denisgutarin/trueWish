@@ -1,4 +1,4 @@
-import db, { sql } from '@/lib/bot/database/db.js';
+import { sql } from '@/lib/db.js';
 
 /**
  * POST /api/admin/materials - Создать новый материал

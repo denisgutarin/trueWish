@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createBot  } from '@/lib/bot/bot'; 
+import { createBot  } from '@/lib/bot'; 
 
 
 export async function POST(request) {

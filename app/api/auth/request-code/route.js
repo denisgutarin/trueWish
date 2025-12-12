@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { UserModel } from '@/lib/bot/database/models';
+import { UserModel } from '@/lib/models';
 
 /**
  * POST /api/auth/request-code

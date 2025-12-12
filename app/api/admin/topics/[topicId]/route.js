@@ -1,4 +1,4 @@
-import db, { sql } from '@/lib/bot/database/db.js';
+import { sql } from '@/lib/db.js'
 
 /**
  * PUT /api/admin/topics/[topicId] - Обновить тему

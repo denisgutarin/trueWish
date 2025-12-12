@@ -1,5 +1,5 @@
 
-import db, { sql } from '@/lib/bot/database/db.js';
+import { sql } from '@/lib/db.js'
 
 /**
  * GET /api/admin/users - Список всех пользователей

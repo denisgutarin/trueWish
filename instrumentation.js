@@ -1,4 +1,4 @@
-import TelegramBot from'./lib/bot/bot.js'
+import TelegramBot from'./lib/bot.js'
 // Указываем что instrumentation работает только в Node.js runtime
 export const register = async () => {
   // Импорты только для Node.js runtime

@@ -1,4 +1,4 @@
-import { UserModel } from '@/lib/bot/database/models';
+import { UserModel } from '@/lib/models';
 
 export async function POST(request) {
   try {

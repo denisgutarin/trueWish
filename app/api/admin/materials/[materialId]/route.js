@@ -1,4 +1,4 @@
-import db, { sql } from '@/lib/bot/database/db.js';
+import { sql } from '@/lib/db.js'
 
 /**
  * PUT /api/admin/materials/[materialId] - Обновить материал
