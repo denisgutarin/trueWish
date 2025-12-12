@@ -11,13 +11,13 @@ const { Pool } = require('pg');
 async function fixSequences() {
   console.log('🔧 Fixing PostgreSQL sequences...\n');
 
-  if (!process.env.DATABASE_URL) {
-    console.error('❌ DATABASE_URL not set in environment');
+  if (!process.env.POSTGRES_URL) {
+    console.error('❌ POSTGRES_URL not set in environment');
     process.exit(1);
   }
 
   const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: process.env.POSTGRES_URL,
   });
 
   try {

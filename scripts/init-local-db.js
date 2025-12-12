@@ -10,8 +10,8 @@
  *    CREATE DATABASE truewish;
  *    CREATE USER truewish WITH PASSWORD 'truewish123';
  *    GRANT ALL PRIVILEGES ON DATABASE truewish TO truewish;
- * 3. Установите DATABASE_URL в .env:
- *    DATABASE_URL=postgresql://truewish:truewish123@localhost:5432/truewish
+ * 3. Установите POSTGRES_URL в .env:
+ *    POSTGRES_URL=postgresql://truewish:truewish123@localhost:5432/truewish
  * 4. Запустите этот скрипт: node scripts/init-local-db.js
  * 
  * Скрипт создаст все необходимые таблицы.
@@ -22,16 +22,16 @@ require('dotenv').config();
 async function initDatabase() {
   console.log('🔄 Инициализация локальной базы данных...\n');
 
-  // Проверка DATABASE_URL
-  if (!process.env.DATABASE_URL) {
-    console.error('❌ DATABASE_URL не установлена в .env файле');
+  // Проверка POSTGRES_URL
+  if (!process.env.POSTGRES_URL) {
+    console.error('❌ POSTGRES_URL не установлена в .env файле');
     console.log('\n💡 Добавьте в .env:');
-    console.log('   DATABASE_URL=postgresql://truewish:truewish123@localhost:5432/truewish\n');
+    console.log('   POSTGRES_URL=postgresql://truewish:truewish123@localhost:5432/truewish\n');
     process.exit(1);
   }
 
-  console.log('✅ DATABASE_URL найдена');
-  console.log('🔗 Подключение:', process.env.DATABASE_URL.replace(/:[^:@]+@/, ':****@'));
+  console.log('✅ POSTGRES_URL найдена');
+  console.log('🔗 Подключение:', process.env.POSTGRES_URL.replace(/:[^:@]+@/, ':****@'));
 
   try {
     // Импортируем db и инициализируем
@@ -58,7 +58,7 @@ async function initDatabase() {
     console.log('   1. Postgres запущен локально');
     console.log('   2. База данных truewish создана');
     console.log('   3. Пользователь truewish имеет права доступа');
-    console.log('   4. DATABASE_URL правильно указан в .env');
+    console.log('   4. POSTGRES_URL правильно указан в .env');
     process.exit(1);
   }
 }

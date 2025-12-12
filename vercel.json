@@ -1,20 +1,8 @@
 {
-  "buildCommand": "npm install && npm run build",
+  "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "regions": ["iad1"],
-  "env": {
-    "NODE_ENV": "production",
-    "TELEGRAM_BOT_TOKEN": "@telegram_bot_token",
-    "BOT_ADMINS": "@bot_admins",
-    "ADMIN_PASSWORD": "@admin_password",
-    "BOT_WELCOME_MESSAGE": "Добро пожаловать в систему обучения! Выберите тему из меню ниже."
-  },
-  "functions": {
-    "api/**/*.js": {
-      "maxDuration": 30
-    }
-  },
+  "regions": ["fra1"],
   "headers": [
     {
       "source": "/api/webhook",

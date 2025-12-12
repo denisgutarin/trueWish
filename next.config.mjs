@@ -2,16 +2,10 @@
 const nextConfig = {
   /* config options here */
   reactCompiler: true,
+  turbopack: {},
   
-  // Настройка для работы с CommonJS модулями (better-sqlite3, telegraf)
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.externals.push({
-        'better-sqlite3': 'commonjs better-sqlite3',
-      });
-    }
-    return config;
-  },
+  // Настройка для работы с CommonJS модулями
+  serverExternalPackages: ['better-sqlite3'],
 };
 
 export default nextConfig;
