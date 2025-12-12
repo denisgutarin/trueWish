@@ -5,8 +5,9 @@
  * This resets all SERIAL sequences to continue from the maximum existing ID
  */
 
-require('dotenv').config();
-const { Pool } = require('pg');
+import 'dotenv/config';
+import pkg from 'pg';
+const { Pool } = pkg;
 
 async function fixSequences() {
   console.log('🔧 Fixing PostgreSQL sequences...\n');

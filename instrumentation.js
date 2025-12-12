@@ -1,3 +1,4 @@
+import TelegramBot from'./lib/bot/bot.js'
 // Указываем что instrumentation работает только в Node.js runtime
 export const register = async () => {
   // Импорты только для Node.js runtime
@@ -5,15 +6,11 @@ export const register = async () => {
     return;
   }
 
-  const db = require('./lib/bot/database/db');
-  const TelegramBot = require('./lib/bot/bot');
 
   console.log('🔄 Initializing Telegram Bot...');
   
   try {
-    // Инициализация базы данных
-    console.log('🔄 Initializing database...');
-    await db.init();
+
     
     // Настройка webhook для Telegram бота
     const botToken = process.env.TELEGRAM_BOT_TOKEN;

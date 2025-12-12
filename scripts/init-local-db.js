@@ -17,7 +17,7 @@
  * Скрипт создаст все необходимые таблицы.
  */
 
-require('dotenv').config();
+import 'dotenv/config';
 
 async function initDatabase() {
   console.log('🔄 Инициализация локальной базы данных...\n');
@@ -35,7 +35,7 @@ async function initDatabase() {
 
   try {
     // Импортируем db и инициализируем
-    const db = require('../lib/bot/database/db');
+    const db = (await import('../lib/bot/database/db.js')).default;
     
     console.log('\n🔄 Создание таблиц...');
     await db.init();

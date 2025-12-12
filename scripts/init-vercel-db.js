@@ -8,7 +8,7 @@
  * Make sure POSTGRES_URL is set in your environment
  */
 
-const db = require('../lib/bot/database/db.js');
+import db from '../lib/bot/database/db.js';
 
 async function init() {
   console.log('🔄 Initializing Vercel Postgres database...\n');

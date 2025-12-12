@@ -7,7 +7,7 @@
  * Example: node scripts/set-webhook.js https://true-wish-bnpcki707-denisgutarin-2458s-projects.vercel.app
  */
 
-require('dotenv').config();
+import 'dotenv/config';
 
 async function setWebhook() {
   const appUrl = process.argv[2];
