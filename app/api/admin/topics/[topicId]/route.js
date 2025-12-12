@@ -45,12 +45,12 @@ export async function GET(request, { params }) {
   try {
     const { topicId } = await params;
     const topicIdNum = parseInt(topicId);
-    const materials = await db.all(`
+    const materials = await sql`
       SELECT *
       FROM materials
-      WHERE topic_id = $1
+      WHERE topic_id = ${topicIdNum}
       ORDER BY order_index
-    `, [topicIdNum])
+    `;
 
     return Response.json({ materials });
   } catch (error) {

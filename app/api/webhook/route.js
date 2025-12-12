@@ -8,7 +8,7 @@ export async function POST(request) {
     const update = await request.json();
     const bot = createBot();
     // Fire-and-forget, but log errors if any
-    bot.handleUpdate(update).catch((err) => {
+    await bot.handleUpdate(update).catch((err) => {
       console.error('❌ handleUpdate error:', err);
     });
     return NextResponse.json({ ok: true });
