@@ -1,4 +1,4 @@
-import db from '@/lib/bot/database/db';
+import db, { sql } from '@/lib/bot/database/db.js';
 
 /**
  * PUT /api/admin/topics/[topicId] - Обновить тему
@@ -8,11 +8,11 @@ export async function PUT(request, { params }) {
     const { topicId } = await params;
     const topicIdNum = parseInt(topicId);
     const { title, description } = await request.json();
-    await db.run(`
+    await sql`
       UPDATE topics
-      SET title = $1, description = $2
-      WHERE id = $3
-    `, [title, description || null, topicIdNum])
+      SET title = ${title}, description = ${description || null}
+      WHERE id = ${topicIdNum}
+    `;
 
     return Response.json({ success: true });
   } catch (error) {
@@ -29,7 +29,7 @@ export async function DELETE(request, { params }) {
     const { topicId } = await params;
     const topicIdNum = parseInt(topicId);
     // Удаляем тему (материалы удалятся каскадно через foreign key)
-    await db.run(`DELETE FROM topics WHERE id = $1`, [topicIdNum])
+    await sql`DELETE FROM topics WHERE id = ${topicIdNum}`;
 
     return Response.json({ success: true });
   } catch (error) {

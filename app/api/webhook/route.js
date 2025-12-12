@@ -1,22 +1,16 @@
 import { NextResponse } from 'next/server';
+import { createBot  } from '@/lib/bot/bot'; 
 
-// Импортируем бота (будет создан позже)
-let bot;
 
 export async function POST(request) {
   try {
     // Получаем обновление от Telegram
     const update = await request.json();
-    
-    // Загружаем бота если еще не загружен
-    if (!bot) {
-      const { createBot } = await import('@/lib/bot/bot');
-      bot = createBot();
-    }
-    
-    // Обрабатываем обновление
-    await bot.handleUpdate(update);
-    
+    const bot = createBot();
+    // Fire-and-forget, but log errors if any
+    bot.handleUpdate(update).catch((err) => {
+      console.error('❌ handleUpdate error:', err);
+    });
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('Webhook error:', error);

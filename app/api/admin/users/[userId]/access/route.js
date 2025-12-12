@@ -1,4 +1,4 @@
-import db from '@/lib/bot/database/db';
+import db, { sql } from '@/lib/bot/database/db.js';
 
 /**
  * GET /api/admin/users/[userId]/access - Получить доступы пользователя
@@ -7,13 +7,13 @@ export async function GET(request, { params }) {
   try {
     const { userId } = await params;
     const userIdNum = parseInt(userId);
-    const access = await db.all(`
+    const access = await sql`
       SELECT uta.*, t.title as topic_title
       FROM user_topic_access uta
       JOIN topics t ON uta.topic_id = t.id
-      WHERE uta.user_id = $1
+      WHERE uta.user_id = ${userIdNum}
       ORDER BY t.order_index
-    `, [userIdNum])
+    `;
 
     return Response.json({ access });
   } catch (error) {
@@ -30,11 +30,11 @@ export async function POST(request, { params }) {
     const { userId } = await params;
     const userIdNum = parseInt(userId);
     const { topicId } = await request.json();
-    await db.run(`
+    await sql`
       INSERT INTO user_topic_access (user_id, topic_id)
-      VALUES ($1, $2)
+      VALUES (${userIdNum}, ${topicId})
       ON CONFLICT DO NOTHING
-    `, [userIdNum, topicId])
+    `;
 
     return Response.json({ success: true });
   } catch (error) {
@@ -51,10 +51,10 @@ export async function DELETE(request, { params }) {
     const { userId } = await params;
     const userIdNum = parseInt(userId);
     const { topicId } = await request.json();
-    await db.run(`
+    await sql`
       DELETE FROM user_topic_access
-      WHERE user_id = $1 AND topic_id = $2
-    `, [userIdNum, topicId])
+      WHERE user_id = ${userIdNum} AND topic_id = ${topicId}
+    `;
 
     return Response.json({ success: true });
   } catch (error) {
